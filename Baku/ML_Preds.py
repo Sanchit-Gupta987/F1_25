@@ -491,6 +491,9 @@ def main():
             print(f"{'Pos':<3} {'Driver':<4} {'Team':<20} {'Start':<5}")
             print("-" * 40)
             
+            # Add actual final finishing position to the dataframe
+            predictions['final_position'] = range(1, len(predictions) + 1)
+            
             for idx, row in predictions.iterrows():
                 final_pos = idx + 1
                 driver = row['driver']
@@ -502,18 +505,22 @@ def main():
             print(f"Predicted Winner: {predictions.iloc[0]['driver']} (started P{int(predictions.iloc[0]['quali_position'])})")
             print(f"Predicted Podium: {', '.join(predictions.head(3)['driver'].tolist())}")
             
-            # Show biggest movers
-            predictions['position_change'] = predictions['quali_position'] - predictions['predicted_position']
-            biggest_gainers = predictions.nlargest(3, 'position_change')
-            biggest_losers = predictions.nsmallest(3, 'position_change')
+            # Calculate position changes using ACTUAL final positions (positive = gained positions, negative = lost positions)
+            predictions['position_change'] = predictions['quali_position'] - predictions['final_position']
             
-            print(f"\nBiggest Predicted Gainers:")
-            for _, row in biggest_gainers.iterrows():
-                print(f"  {row['driver']}: P{int(row['quali_position'])} → P{row['predicted_position']} ({row['position_change']:+.0f})")
-                
-            print(f"\nBiggest Predicted Losers:")
-            for _, row in biggest_losers.iterrows():
-                print(f"  {row['driver']}: P{int(row['quali_position'])} → P{row['predicted_position']} ({row['position_change']:+.0f})")
+            # Filter out drivers who didn't move significantly and get actual gainers/losers
+            gainers = predictions[predictions['position_change'] > 0].nlargest(3, 'position_change')
+            losers = predictions[predictions['position_change'] < 0].nsmallest(3, 'position_change')
+            
+            if not gainers.empty:
+                print(f"\nBiggest Predicted Gainers:")
+                for _, row in gainers.iterrows():
+                    print(f"  {row['driver']}: P{int(row['quali_position'])} → P{row['final_position']} ({row['position_change']:+.0f})")
+            
+            if not losers.empty:
+                print(f"\nBiggest Predicted Losers:")
+                for _, row in losers.iterrows():
+                    print(f"  {row['driver']}: P{int(row['quali_position'])} → P{row['final_position']} ({row['position_change']:+.0f})")
             
             # Show points implications
             top_points_scorers = predictions.head(10)

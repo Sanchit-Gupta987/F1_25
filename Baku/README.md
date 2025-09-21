@@ -1,5 +1,5 @@
 # Baku Predictions
-Created the predictions using power rankings of various features : 
+Created the predictions using various features : 
 - Position changes during the season
 - Position changes historically (current regulations 2022 - 2024) at the current circuit
 - Qualifying position
@@ -9,3 +9,8 @@ Created the predictions using power rankings of various features :
 Used Fastf1 Api to obtain the data
 Pandas to clean and edit dataframe to help formulate results
 F1 website and personal knowledge to weigh factors
+
+
+2 Simple Power Ranking Predictors and an XGBoost model
+XGBoost model giving very out of place outputs. 
+Power rankings giving more predictable, "SAFE" outputs 
